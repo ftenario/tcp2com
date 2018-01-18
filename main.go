@@ -15,17 +15,25 @@ var upgrader = websocket.Upgrader{
   WriteBufferSize: 1024,
 }
 
+//Main entry point
 func main() {
 
+  //create a multiplexer
   mux := bone.New()
+
+  //create teh http endpoints
   mux.Get("/", http.HandlerFunc(Home))
   mux.Get("/ws", http.HandlerFunc(WebSocket))
 
+  //create a middleware
   n:=negroni.Classic()
   n.UseHandler(mux)
   n.Run(":9000")
 }
 
+/*
+  Home - handler for serving the index.html file
+*/
 func Home(w http.ResponseWriter, r *http.Request) {
   if r.URL.Path != "/" {
     http.Error(w, "Method not found", 404)
@@ -40,6 +48,9 @@ func Home(w http.ResponseWriter, r *http.Request) {
   http.ServeFile(w, r, "index.html")
 }
 
+/*
+  WebSocket - handler for the for websocket
+*/
 func WebSocket(w http.ResponseWriter, r *http.Request) {
   ws, err := upgrader.Upgrade(w, r, nil)
 
