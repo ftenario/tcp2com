@@ -7,6 +7,7 @@ import (
   "github.com/codegangsta/negroni"
   "github.com/gorilla/websocket"
   "log"
+  "os"
 )
 
 var upgrader = websocket.Upgrader{
@@ -15,6 +16,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
+
   mux := bone.New()
   mux.Get("/", http.HandlerFunc(Home))
   mux.Get("/ws", http.HandlerFunc(WebSocket))
