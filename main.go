@@ -7,7 +7,8 @@ import (
   "github.com/codegangsta/negroni"
   "github.com/gorilla/websocket"
   "log"
-  "os"
+  //"os"
+  "tcp2com/serial"
 )
 
 var upgrader = websocket.Upgrader{
@@ -29,6 +30,8 @@ func main() {
   n:=negroni.Classic()
   n.UseHandler(mux)
   n.Run(":9000")
+
+  serial.Open()
 }
 
 /*

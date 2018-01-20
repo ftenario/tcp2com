@@ -1,44 +1,56 @@
 package serial
 
 import (
-  "github.com/jacobsa/go-serial/serial"
+  //"github.com/jacobsa/go-serial/serial"
+  "github.com/tarm/serial"
   "github.com/go-ini/ini"
   "log"
   "os"
+  //"strconv"
 )
 
-options := serial.Options{
-  PortName: "/dev/tty.USB",
-  BaudRate: 19200,
-  DataBits: 8,
-  StopBits: 1,
-  MinimumReadSize: 4,
-}
+// options := serial.options{
+//   portname: "/dev/tty.usb",
+//   baudrate: 19200,
+//   databits: 8,
+//   stopbits: 1,
+//   minimumreadsize: 4,
+// }
+var ser_port = ""
+var baud = ""
 
-func Init() {
-  var ser_port = ""
-  var baud = ""
-  var data = ""
-  var stop = ""
+func init() {
   if _,err := os.Stat("parameters.ini"); err == nil {
     cfg,_ := ini.Load("parameters.ini")
-    ser_port = cfg.Section("parameters").Key("SerialPort").string()
-    baud = cfg.Section("parameters").Key("Baud").string()
-    data = cfg.Section("parameters").Key("DataBits").string()
-    stop = cfg.Section("parameters").Key("StopBits").string()
+    ser_port = cfg.Section("params").Key("SerialPort").String()
+    baud = cfg.Section("params").Key("Baud").String()
   }
 
 }
 
 func Open() {
 
-  port, err := serial.Open(options)
-
+  c := &serial.Config{Name: "/dev/cu.usbserial", Baud: 9600}
+  s, err := serial.OpenPort(c)
   if err != nil {
-    log.Fatal("serial.Open: %v\n", err)
+    log.Fatal(err)
   }
 
-  defer port.Close()
+  n, err := s.Write([]byte("\n\n\n\n\n"))
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  buf := make([]byte, 128)
+  n, err = s.Read(buf)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  log.Println("%q", buf[:n])
+
+
+  defer s.Close()
 }
 
 func GetPorts() {
