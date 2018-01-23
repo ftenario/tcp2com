@@ -8,8 +8,27 @@ import (
   "github.com/gorilla/websocket"
   "log"
   //"os"
-  "tcp2com/serial"
+  //"tcp2com/serial"
+  "github.com/tarm/serial"
+  "fmt"
+  "time"
 )
+
+var serConn = ""
+
+func ConnectSerial() {
+
+  //create a serial object
+  serConn := &serial.Config{Name: "/dev/cu.usbserial", Baud: 9600, ReadTimeout: time.Millisecond * 25}
+  //serConn, err := serial.Open()
+  s, err := serial.OpenPort(serConn)
+  if err != nil {
+          log.Fatal(err)
+          fmt.Println("Error opeing serial port...")
+  }
+
+  defer s.Close()
+}
 
 var upgrader = websocket.Upgrader{
   ReadBufferSize: 1024,
@@ -22,7 +41,7 @@ func main() {
   //create a multiplexer
   mux := bone.New()
 
-  //create teh http endpoints
+  //create the http endpoints
   mux.Get("/", http.HandlerFunc(Home))
   mux.Get("/ws", http.HandlerFunc(WebSocket))
 
@@ -31,7 +50,6 @@ func main() {
   n.UseHandler(mux)
   n.Run(":9000")
 
-  serial.Open()
 }
 
 /*
@@ -71,7 +89,11 @@ func WebSocket(w http.ResponseWriter, r *http.Request) {
         break
     }
 
-    log.Printf("rx: %s", message)
+    log.Printf("%s", message)
+    if string(message) == "open" {
+      ConnectSerial()
+    }
+
 
   }
 

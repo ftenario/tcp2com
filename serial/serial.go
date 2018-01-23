@@ -28,29 +28,15 @@ func init() {
 
 }
 
-func Open() {
+func Open() *serial {
 
   c := &serial.Config{Name: "/dev/cu.usbserial", Baud: 9600}
   s, err := serial.OpenPort(c)
   if err != nil {
     log.Fatal(err)
   }
-
-  n, err := s.Write([]byte("\n\n\n\n\n"))
-  if err != nil {
-    log.Fatal(err)
-  }
-
-  buf := make([]byte, 128)
-  n, err = s.Read(buf)
-  if err != nil {
-    log.Fatal(err)
-  }
-
-  log.Println("%q", buf[:n])
-
-
   defer s.Close()
+  return s
 }
 
 func GetPorts() {

@@ -4,6 +4,31 @@
 <title>Command Example</title>
 <script type="text/javascript">
   window.onload = function() {
+    var conn;
+    var msg = document.getElementById("msg");
+    var log = document.getElementById("log");
+
+    function appendLog(item) {
+      var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+      log.appendChild(item);
+      if (doScroll) {
+          log.scrollTop = log.scrollHeight - log.clientHeight;
+      }
+    }
+
+    document.getElementById("form").onsubmit = function() {
+      if(!conn) {
+        return false;
+      }
+
+      if(!msg.value) {
+        return false;
+      }
+
+      conn.send(msg.value);
+      msg.value = "";
+      return false;
+    }
 
     //Check if the browser supports websocket
     if( window["WebSocket"]) {
@@ -15,7 +40,7 @@
       conn = new WebSocket("ws://" + arr[2] + "/ws");
 
       conn.onopen = function() {
-        conn.send("Message from browser");
+        conn.send("Websocket connected");
       };
       conn.onclose = function() {
           console.log("socket connection close");
@@ -75,8 +100,8 @@ body {
 <body>
 <div id="log"></div>
 <form id="form">
-    <input type="submit" value="Send" />
     <input type="text" id="msg" size="64"/>
+    <input type="submit" value="Send" />
 </form>
 </body>
 </html>
