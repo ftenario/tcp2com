@@ -12,11 +12,12 @@ import (
   "github.com/tarm/serial"
   "fmt"
   "time"
+  "bufio"
 )
+var rxChan = make(chan string)
+var txChan = make(chan string)
 
-var serConn = ""
-
-func ConnectSerial() {
+func ConnectSerial(txChan chan string, rxChan chan string) {
 
   //create a serial object
   serConn := &serial.Config{Name: "/dev/cu.usbserial", Baud: 9600, ReadTimeout: time.Millisecond * 25}
@@ -25,9 +26,34 @@ func ConnectSerial() {
   if err != nil {
           log.Fatal(err)
           fmt.Println("Error opeing serial port...")
+  } else {
+    fmt.Println("Serial device connected..")
   }
-
   defer s.Close()
+
+  go func() {
+    for {
+      time.Sleep(time.Millisecond)
+      m := <- txChan
+      fmt.Printf("Sending: %s\n", m)
+      s.Write([]byte(m))
+    }
+  }()
+
+  //go routine to read data from serial port
+  go func() {
+    serial := bufio.NewReader(s)
+    for {
+        time.Sleep(50 * time.Millisecond)
+
+        //read until newline
+        recv,_ := serial.ReadBytes('\x0a')
+        if len(string(recv)) > 0 {
+          fmt.Printf("rx: %s\n", string(recv))
+        }
+        rxChan <- string(recv)
+      }
+  }()
 }
 
 var upgrader = websocket.Upgrader{
@@ -38,12 +64,15 @@ var upgrader = websocket.Upgrader{
 //Main entry point
 func main() {
 
+  ConnectSerial(txChan, rxChan)
+
   //create a multiplexer
   mux := bone.New()
 
   //create the http endpoints
   mux.Get("/", http.HandlerFunc(Home))
   mux.Get("/ws", http.HandlerFunc(WebSocket))
+  //mux.Get("/ws", http.HandlerFunc(WebSocket))
 
   //create a middleware
   n:=negroni.Classic()
@@ -90,10 +119,14 @@ func WebSocket(w http.ResponseWriter, r *http.Request) {
     }
 
     log.Printf("%s", message)
-    if string(message) == "open" {
-      ConnectSerial()
+    if string(message) != "" {
+      txChan <- "\n"
     }
-
+    msg := <- rxChan
+    //log.Printf("%s", msg)
+    if len(msg) > 0 {
+      ws.WriteMessage(websocket.TextMessage, []byte(msg))
+    }
 
   }
 
