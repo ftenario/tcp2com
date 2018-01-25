@@ -14,14 +14,17 @@ import (
   "time"
   "bufio"
 )
-var rxChan = make(chan string)
-var txChan = make(chan string)
+var rxChan = make(chan string, 1024)
+var txChan = make(chan string, 1024)
+var wsRxChan = make(chan string, 1024)
+var wsTxChan = make(chan string, 1024)
 
-func ConnectSerial(txChan chan string, rxChan chan string) {
+func connectSerial()  {
 
   //create a serial object
   serConn := &serial.Config{Name: "/dev/cu.usbserial", Baud: 9600, ReadTimeout: time.Millisecond * 25}
   //serConn, err := serial.Open()
+  var err error
   s, err := serial.OpenPort(serConn)
   if err != nil {
           log.Fatal(err)
@@ -29,11 +32,10 @@ func ConnectSerial(txChan chan string, rxChan chan string) {
   } else {
     fmt.Println("Serial device connected..")
   }
-  defer s.Close()
 
   go func() {
     for {
-      time.Sleep(time.Millisecond)
+      time.Sleep(50 * time.Millisecond)
       m := <- txChan
       fmt.Printf("Sending: %s\n", m)
       s.Write([]byte(m))
@@ -47,13 +49,18 @@ func ConnectSerial(txChan chan string, rxChan chan string) {
         time.Sleep(50 * time.Millisecond)
 
         //read until newline
-        recv,_ := serial.ReadBytes('\x0a')
+        recv,err := serial.ReadBytes('\x0a')
+        if err != nil {
+          //fmt.Printf("Rx Error: %s\n", err)
+        }
         if len(string(recv)) > 0 {
-          fmt.Printf("rx: %s\n", string(recv))
+          fmt.Printf("%s", string(recv))
         }
         rxChan <- string(recv)
       }
   }()
+//  defer s.Close()
+
 }
 
 var upgrader = websocket.Upgrader{
@@ -64,15 +71,43 @@ var upgrader = websocket.Upgrader{
 //Main entry point
 func main() {
 
-  ConnectSerial(txChan, rxChan)
+  connectSerial()
+  txChan <- "\n"
+  RunServer()
 
+
+  select {
+    case tx := <-wsRxChan:
+        txChan <- tx
+
+      case r := <- rxChan:
+        wsTxChan <- r
+        fmt.Printf("%s", r)
+
+      case <- time.After(4000 * time.Millisecond):
+        fmt.Println("timeout\n")
+        //fmt.Println("\n->")
+  }
+
+  //mux := bone.New()
+
+  // //create the http endpoints
+  // mux.Get("/", http.HandlerFunc(Home))
+  // mux.Get("/ws", http.HandlerFunc(WebSocket))
+  //
+  // //create a middleware
+  // n:=negroni.Classic()
+  // n.UseHandler(mux)
+  // n.Run(":9000")
+}
+
+func RunServer() {
   //create a multiplexer
   mux := bone.New()
 
   //create the http endpoints
   mux.Get("/", http.HandlerFunc(Home))
   mux.Get("/ws", http.HandlerFunc(WebSocket))
-  //mux.Get("/ws", http.HandlerFunc(WebSocket))
 
   //create a middleware
   n:=negroni.Classic()
@@ -109,26 +144,21 @@ func WebSocket(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  defer ws.Close()
-
   for {
+    time.Sleep(25 * time.Millisecond)
+
     _, message, err := ws.ReadMessage()
     if err != nil {
         log.Println("error: ", err)
         break
     }
-
-    log.Printf("%s", message)
-    if string(message) != "" {
-      txChan <- "\n"
+    if len(string(message)) > 0 {
+      fmt.Printf("Ws rx: %s\n", message)
+      wsRxChan <- string(message)
     }
-    msg := <- rxChan
-    //log.Printf("%s", msg)
-    if len(msg) > 0 {
-      ws.WriteMessage(websocket.TextMessage, []byte(msg))
-    }
-
+    t := <- wsTxChan
+    ws.WriteMessage(websocket.TextMessage, []byte(t))
   }
-
+  defer ws.Close()
 
 }
