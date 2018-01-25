@@ -54,7 +54,7 @@ func connectSerial()  {
           //fmt.Printf("Rx Error: %s\n", err)
         }
         if len(string(recv)) > 0 {
-          fmt.Printf("%s", string(recv))
+          //fmt.Printf("%s", string(recv))
         }
         rxChan <- string(recv)
       }
@@ -73,21 +73,24 @@ func main() {
 
   connectSerial()
   txChan <- "\n"
+
+  go func() {
+    for{
+      select {
+        case tx := <-wsRxChan:
+            txChan <- tx
+
+          case r := <- rxChan:
+            wsTxChan <- r
+            //fmt.Printf("%s", r)
+
+          case <- time.After(4000 * time.Millisecond):
+            fmt.Println("timeout\n")
+            //fmt.Println("\n->")
+      }
+    }
+  }()
   RunServer()
-
-
-  select {
-    case tx := <-wsRxChan:
-        txChan <- tx
-
-      case r := <- rxChan:
-        wsTxChan <- r
-        fmt.Printf("%s", r)
-
-      case <- time.After(4000 * time.Millisecond):
-        fmt.Println("timeout\n")
-        //fmt.Println("\n->")
-  }
 
   //mux := bone.New()
 
@@ -157,6 +160,7 @@ func WebSocket(w http.ResponseWriter, r *http.Request) {
       wsRxChan <- string(message)
     }
     t := <- wsTxChan
+    fmt.Printf("Rx: %s", t)
     ws.WriteMessage(websocket.TextMessage, []byte(t))
   }
   defer ws.Close()
