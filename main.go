@@ -14,10 +14,8 @@ import (
   "time"
   "bufio"
 )
-var rxChan = make(chan string, 1024)
-var txChan = make(chan string, 1024)
-var wsRxChan = make(chan string, 1024)
-var wsTxChan = make(chan string, 1024)
+var rxChan = make(chan string)
+var txChan = make(chan string)
 
 func connectSerial()  {
 
@@ -83,21 +81,6 @@ func main() {
   n:=negroni.Classic()
   n.UseHandler(mux)
   n.Run(":9000")
-}
-
-func RunServer() {
-  //create a multiplexer
-  mux := bone.New()
-
-  //create the http endpoints
-  mux.Get("/", http.HandlerFunc(Home))
-  mux.Get("/ws", http.HandlerFunc(WebSocket))
-
-  //create a middleware
-  n:=negroni.Classic()
-  n.UseHandler(mux)
-  n.Run(":9000")
-
 }
 
 /*

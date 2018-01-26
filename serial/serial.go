@@ -22,8 +22,8 @@ var baud = ""
 func init() {
   if _,err := os.Stat("parameters.ini"); err == nil {
     cfg,_ := ini.Load("parameters.ini")
-    ser_port = cfg.Section("params").Key("SerialPort").String()
-    baud = cfg.Section("params").Key("Baud").String()
+    ser_port = cfg.Section("port1").Key("serial").String()
+    baud = cfg.Section("port1").Key("Baud").String()
   }
 
 }
