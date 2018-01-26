@@ -46,9 +46,13 @@
           console.log("socket connection close");
       };
 
-      conn.onmessage = function(d) {
-        console.log(d);
-        //appendLog(d);
+      conn.onmessage = function(msg) {
+        var messages = msg.data.split('\n');
+         for (var i = 0; i < messages.length; i++) {
+             var item = document.createElement("div");
+             item.innerText = messages[i];
+             appendLog(item);
+        }
       };
 
 

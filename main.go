@@ -74,34 +74,15 @@ func main() {
   connectSerial()
   txChan <- "\n"
 
-  go func() {
-    for{
-      select {
-        case tx := <-wsRxChan:
-            txChan <- tx
+  mux := bone.New()
+  //create the http endpoints
+  mux.Get("/", http.HandlerFunc(Home))
+  mux.Get("/ws", http.HandlerFunc(WebSocket))
 
-          case r := <- rxChan:
-            wsTxChan <- r
-            //fmt.Printf("%s", r)
-
-          case <- time.After(4000 * time.Millisecond):
-            fmt.Println("timeout\n")
-            //fmt.Println("\n->")
-      }
-    }
-  }()
-  RunServer()
-
-  //mux := bone.New()
-
-  // //create the http endpoints
-  // mux.Get("/", http.HandlerFunc(Home))
-  // mux.Get("/ws", http.HandlerFunc(WebSocket))
-  //
-  // //create a middleware
-  // n:=negroni.Classic()
-  // n.UseHandler(mux)
-  // n.Run(":9000")
+  //create a middleware
+  n:=negroni.Classic()
+  n.UseHandler(mux)
+  n.Run(":9000")
 }
 
 func RunServer() {
@@ -136,6 +117,30 @@ func Home(w http.ResponseWriter, r *http.Request) {
   http.ServeFile(w, r, "index.html")
 }
 
+func wsSendMsg(ws *websocket.Conn) {
+
+  for {
+      select {
+        case m := <- rxChan:
+          fmt.Printf("%s", m)
+          ws.WriteMessage(websocket.TextMessage, []byte(m))
+        case <- time.After(4000 * time.Millisecond):
+          fmt.Println("timeout\n")
+      }
+  }
+}
+
+func wsGetMsg(ws *websocket.Conn) {
+  defer ws.Close()
+  for {
+    _, msg, err := ws.ReadMessage()
+    if err != nil {
+      fmt.Printf("%s", err)
+    }
+    txChan <- string(msg)
+  }
+}
+
 /*
   WebSocket - handler for the for websocket
 */
@@ -147,22 +152,8 @@ func WebSocket(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  for {
-    time.Sleep(25 * time.Millisecond)
-
-    _, message, err := ws.ReadMessage()
-    if err != nil {
-        log.Println("error: ", err)
-        break
-    }
-    if len(string(message)) > 0 {
-      fmt.Printf("Ws rx: %s\n", message)
-      wsRxChan <- string(message)
-    }
-    t := <- wsTxChan
-    fmt.Printf("Rx: %s", t)
-    ws.WriteMessage(websocket.TextMessage, []byte(t))
-  }
-  defer ws.Close()
+  go wsSendMsg(ws)
+  go wsGetMsg(ws)
+  //defer ws.Close()
 
 }
