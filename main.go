@@ -35,7 +35,7 @@ func connectSerial()  {
     for {
       time.Sleep(50 * time.Millisecond)
       m := <- txChan
-      fmt.Printf("Sending: %s\n", m)
+      //fmt.Printf("Sending: %s\n", m)
       s.Write([]byte(m))
     }
   }()

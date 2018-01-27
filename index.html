@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Command Example</title>
+<title>Http To Serial Port</title>
 <script type="text/javascript">
   window.onload = function() {
     var conn;
@@ -24,10 +24,17 @@
       if(!msg.value) {
         return false;
       }
-
+      console.log(msg.value);
       conn.send(msg.value);
+      conn.send("\n");
       msg.value = "";
       return false;
+    }
+
+    document.getElementById("msg").onkeypress = function(e) {
+      if(e.keyCode == 13) {
+        conn.send("\n");
+      }
     }
 
     //Check if the browser supports websocket
