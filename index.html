@@ -3,10 +3,39 @@
 <head>
 <title>Http To Serial Port</title>
 <script type="text/javascript">
+  var conn;
   window.onload = function() {
-    var conn;
+    var ws = false;
     var msg = document.getElementById("msg");
     var log = document.getElementById("log");
+
+    if(window.WebSocket === undefined) {
+      console.log("Sockets not supported")
+    }
+    else {
+      // console.log("Websocket...");
+      // window.addEventListener("load", onLoad, false);
+      if(conn === undefined) {
+        var arr = window.location.href.split("/");
+
+        //connect to a websocket endpoint
+        conn = new WebSocket("ws://" + arr[2] + "/ws");
+        console.log(conn);
+
+        conn.onmessage = function(evt) { onMessage(evt) };
+        conn.onopen = function(evt) { onOpen(evt) };
+        conn.onclose = function(evt) { onClose(evt) };
+
+      }
+    }
+
+    function onClose(evt) {
+      console.log("Close event: " + evt);
+    }
+
+    function onOpen(evt) {
+      console.log("Websocket connected!!!");
+    }
 
     function appendLog(item) {
       var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
@@ -37,38 +66,43 @@
       }
     }
 
-    //Check if the browser supports websocket
-    if( window["WebSocket"]) {
+    document.getElementById("connect").onclick = function() {
+        if(conn) {
+          //get the ip:port from https://localhost:9000/
+          var arr = window.location.href.split("/");
 
-      //get the ip:port from https://localhost:9000/
-      var arr = window.location.href.split("/");
-
-      //connect to a websocket endpoint
-      conn = new WebSocket("ws://" + arr[2] + "/ws");
-
-      conn.onopen = function() {
-        conn.send("Websocket connected");
-      };
-      conn.onclose = function() {
-          console.log("socket connection close");
-      };
-
-      conn.onmessage = function(msg) {
-        var messages = msg.data.split('\n');
-         for (var i = 0; i < messages.length; i++) {
-             var item = document.createElement("div");
-             item.innerText = messages[i];
-             appendLog(item);
+          //connect to a websocket endpoint
+          conn = new WebSocket("ws://" + arr[2] + "/ws");
+          conn.onopen = function() {
+            console.log("Websocket connected");
+          };
         }
-      };
-
-
+        else {
+          console.log("This does not support websockets");
+        }
     }
-    else {
-      console.log("Your browser does not support websockets");
-    }
-  }
 
+    document.getElementById("close").onclick = function() {
+        if(window["websocket"]) {
+          conn.onclose = function() {
+              console.log("socket connection close");
+          };
+        }
+    };
+
+    //Check if the browser supports websocket
+    // if( window["WebSocket"]) {
+    function onMessage(evt) {
+      // if(conn != undefined) {
+      var messages = evt.data.split('\n');
+      for (var i = 0; i < messages.length; i++) {
+        var item = document.createElement("div");
+        item.innerText = messages[i];
+        appendLog(item);
+      }
+    };
+
+}
 </script>
 
 
@@ -92,19 +126,24 @@ body {
     top: 0.5em;
     left: 0.5em;
     right: 0.5em;
-    bottom: 3em;
+    bottom: 4em;
     overflow: auto;
+    width: 70%;
+}
+#msg {
+  height: 2em;
+  font-size: 14px;
 }
 #log pre {
   margin: 0;
 }
 #form {
-    padding: 0 0.5em 0 0.5em;
-    margin: 0;
+    padding: 0 1em 0 1em;
+    margin: 1;
     position: absolute;
     bottom: 1em;
     left: 0px;
-    width: 100%;
+    width: 80%;
     overflow: hidden;
 }
 </style>
@@ -114,6 +153,8 @@ body {
 <form id="form">
     <input type="text" id="msg" size="64"/>
     <input type="submit" value="Send" />
+    <button id="connect">Connect</button>
+    <button id="close">Close</button>
 </form>
 </body>
 </html>

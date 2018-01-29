@@ -111,17 +111,19 @@ func wsSendMsg(ws *websocket.Conn) {
           fmt.Println("timeout\n")
       }
   }
+
 }
 
 func wsGetMsg(ws *websocket.Conn) {
-  defer ws.Close()
   for {
     _, msg, err := ws.ReadMessage()
     if err != nil {
-      fmt.Printf("%s", err)
+      fmt.Printf("wsGetMsg Error: %s\n", err)
+      break;
     }
     txChan <- string(msg)
   }
+  defer ws.Close()
 }
 
 /*
@@ -131,7 +133,7 @@ func WebSocket(w http.ResponseWriter, r *http.Request) {
   ws, err := upgrader.Upgrade(w, r, nil)
 
   if err != nil {
-    log.Println("upgrade: ", err)
+    log.Println("Upgrade Error: ", err)
     return
   }
 
