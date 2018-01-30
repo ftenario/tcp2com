@@ -35,7 +35,7 @@ func connectSerial()  {
     for {
       time.Sleep(50 * time.Millisecond)
       m := <- txChan
-      //fmt.Printf("Sending: %s\n", m)
+      //fmt.Printf("Sending: %s", m)
       s.Write([]byte(m))
     }
   }()
@@ -47,14 +47,12 @@ func connectSerial()  {
         time.Sleep(50 * time.Millisecond)
 
         //read until newline
-        recv,err := serial.ReadBytes('\x0a')
-        if err != nil {
-          //fmt.Printf("Rx Error: %s\n", err)
-        }
+        recv,_ := serial.ReadBytes('\x0a')
+        //recv,err := serial.ReadString('\n')
         if len(string(recv)) > 0 {
-          //fmt.Printf("%s", string(recv))
+          //fmt.Printf("%s", recv)
+          rxChan <- string(recv)
         }
-        rxChan <- string(recv)
       }
   }()
 //  defer s.Close()
@@ -105,10 +103,13 @@ func wsSendMsg(ws *websocket.Conn) {
   for {
       select {
         case m := <- rxChan:
-          fmt.Printf("%s", m)
+          //fmt.Printf("%s", m)
           ws.WriteMessage(websocket.TextMessage, []byte(m))
-        case <- time.After(4000 * time.Millisecond):
-          fmt.Println("timeout\n")
+        case <- time.After(60000 * time.Millisecond):
+          m := "console timeout...\n"
+          ws.WriteMessage(websocket.TextMessage, []byte(m))
+          txChan <- "exit\n"
+
       }
   }
 
@@ -116,11 +117,14 @@ func wsSendMsg(ws *websocket.Conn) {
 
 func wsGetMsg(ws *websocket.Conn) {
   for {
+    time.Sleep(50 * time.Millisecond)
     _, msg, err := ws.ReadMessage()
+
     if err != nil {
       fmt.Printf("wsGetMsg Error: %s\n", err)
       break;
     }
+    //fmt.Printf("%d\n", len(string(msg)))
     txChan <- string(msg)
   }
   defer ws.Close()
