@@ -67,6 +67,8 @@ var upgrader = websocket.Upgrader{
 //Main entry point
 func main() {
 
+  //connect to serial automaticaly. This needs to be change
+  //to allo user to select serial port to connect to
   connectSerial()
   txChan <- "\n"
 
@@ -98,13 +100,17 @@ func Home(w http.ResponseWriter, r *http.Request) {
   http.ServeFile(w, r, "index.html")
 }
 
+/*
+  wsSendMsg - Send message to the WebSocket
+  params - ws connection
+*/
 func wsSendMsg(ws *websocket.Conn) {
-
   for {
       select {
+
         case m := <- rxChan:
-          //fmt.Printf("%s", m)
           ws.WriteMessage(websocket.TextMessage, []byte(m))
+
         case <- time.After(60000 * time.Millisecond):
           m := "console timeout...\n"
           ws.WriteMessage(websocket.TextMessage, []byte(m))
@@ -112,9 +118,12 @@ func wsSendMsg(ws *websocket.Conn) {
 
       }
   }
-
 }
 
+/*
+  wsGetMasg - Read message from the websocket
+  params - ws connection
+*/
 func wsGetMsg(ws *websocket.Conn) {
   for {
     time.Sleep(50 * time.Millisecond)
@@ -131,7 +140,7 @@ func wsGetMsg(ws *websocket.Conn) {
 }
 
 /*
-  WebSocket - handler for the for websocket
+  WebSocket - handler for the websocket
 */
 func WebSocket(w http.ResponseWriter, r *http.Request) {
   ws, err := upgrader.Upgrade(w, r, nil)
@@ -141,8 +150,7 @@ func WebSocket(w http.ResponseWriter, r *http.Request) {
     return
   }
 
+  //create goroutines for incoming/outgoing websocket
   go wsSendMsg(ws)
   go wsGetMsg(ws)
-  //defer ws.Close()
-
 }
