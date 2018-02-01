@@ -14,8 +14,20 @@ import (
   "time"
   "bufio"
 )
+
 var rxChan = make(chan string)
 var txChan = make(chan string)
+
+type readOp struct {
+  resp chan string
+}
+
+type writeOp struct {
+  resp chan string
+}
+
+// var rxChan = make(chan *readOp)
+// var txChan = make(chan *writeOp)
 
 func connectSerial()  {
 
