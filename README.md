@@ -16,17 +16,17 @@ This is still a work-in-progress
 For Linux (arm):
 Build:
 ```
-$ end GOOS=linux GOARCH=arm go build goterm
+$ end GOOS=linux GOARCH=arm go build tcp2com
 ```
 
 For MacOS:
 Build:
 ```
-$ go build goterm
+$ go build tcp2com
 ```
 
 For Windows:
 Build:
 ```
-$ end GOOS=windows go build goterm
+$ end GOOS=windows go build tcp2com
 ```
