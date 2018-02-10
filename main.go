@@ -8,7 +8,7 @@ import (
   "github.com/gorilla/websocket"
   "log"
   //"os"
-  //"tcp2com/serial"
+  Conn "tcp2com/connection"
   "github.com/tarm/serial"
   "fmt"
   "time"
@@ -31,8 +31,14 @@ type writeOp struct {
 
 func connectSerial()  {
 
+  //create a serial parameter
+  ser := Conn.Serial{}
+  //initialize the parameter. This read the pramaeters.ini file and populate the struct
+  ser.Init()
+
   //create a serial object
-  serConn := &serial.Config{Name: "/dev/cu.usbserial", Baud: 9600, ReadTimeout: time.Millisecond * 25}
+  serConn := &serial.Config{Name: ser.GetPort(), Baud: ser.GetBaudRate(), ReadTimeout: time.Millisecond * 25}
+  //serConn := &serial.Config{Name: "/dev/cu.usbserial", Baud: 9600, ReadTimeout: time.Millisecond * 25}
   //serConn, err := serial.Open()
   var err error
   s, err := serial.OpenPort(serConn)
