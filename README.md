@@ -1,11 +1,13 @@
 # Tcp2Com
 
 A web/serial application DEMO using Golang and WebSocket.
+This is similar to a terminal serial application but is
+using the web browser as the user interface
 
 This is still a work-in-progress
 
 ## TO DO LIST
-* use parameter.ini for serial config
+* use parameter.ini for serial config - done
 * Add multiple ports in parameters.ini
 * Add bootstrap css for the UI
 * Add TCP port for automation
