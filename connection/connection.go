@@ -4,6 +4,7 @@ import (
   "github.com/go-ini/ini"
   "os"
   "strconv"
+  "runtime"
 )
 
 // options := serial.options{
@@ -23,8 +24,10 @@ func (s *Serial) Init() {
 
   if _,err := os.Stat("parameters.ini"); err == nil {
     cfg,_ := ini.Load("parameters.ini")
-    s.port = cfg.Section("port1").Key("serial").String()
-    s.baud = cfg.Section("port1").Key("baud").Value()
+    if runtime.GOOS == "darwin" {
+      s.port = cfg.Section("darwin").Key("serial1").String()
+      s.baud = cfg.Section("darwin").Key("baud1").Value()
+    }
   }
 }
 
