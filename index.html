@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <title>Http To Serial Port</title>
+<link rel="stylesheet" type="text/css" href="static/bootstrap.min.css">
+<script type="text/javascript" src="static/bootstrap.min.js"></script>
+
 <script type="text/javascript">
   var conn;
   var loginPrompt = false;
@@ -46,6 +49,10 @@
       if (doScroll) {
           log.scrollTop = log.scrollHeight - log.clientHeight;
       }
+    }
+
+    document.getElementById("clear").onclick = function() {
+      log.innerHTML = "";
     }
 
     document.getElementById("form").onsubmit = function() {
@@ -119,10 +126,14 @@ body {
     overflow: auto;
     width: 70%;
 }
+
 #msg {
-  height: 2em;
-  font-size: 14px;
+  /* height: 2em;
+  font-size: 14px; */
+  position: absolute;
+  left: -100px;
 }
+
 #log pre {
   margin: 0;
 }
@@ -131,12 +142,13 @@ body {
     margin: 1;
     position: absolute;
     bottom: 1em;
-    left: 0px;
-    width: 80%;
+    left: -50px;
+    width: 120%;
     overflow: hidden;
 }
+/*
 #send {
-   background-color: #008CBA; /* Green */
+   background-color: #008CBA;
    border: none;
    color: white;
    padding: 10px 32px;
@@ -146,7 +158,7 @@ body {
    font-size: 12px;
 }
 #clear {
-   background-color: #008CBA; /* Green */
+   background-color: #008CBA;
    border: none;
    color: white;
    padding: 10px 32px;
@@ -155,6 +167,7 @@ body {
    display: inline-block;
    font-size: 12px;
 }
+*/
 #status {
   position: absolute;
   top: 50px;
@@ -200,10 +213,21 @@ body {
 <div id="header">Web to Serial Device</div>
 <div id="log"></div>
 <div id="status">State</div>
-<form id="form" autocomplete="off">
-    <input type="text" id="msg" size="64"/>
-    <input type="submit" id="send" value="Send" />
-    <button type="button" id="clear">Clear Log</button>
-</form>
+    <form id="form" autocomplete="off">
+      <div class="container" width="100%">
+          <div class="row">
+              <div class="col-8">
+                  <input type="text" class="form-control" width="60px" id="msg"/>
+              </div>
+              <div class="col-2">
+                <button type="submit" id="send"  class="btn btn-primary">Send</button>
+              </div>
+              <div class="col-2">
+                  <button type="button" id="clear" class="btn btn-primary">Clear Log</button>
+              </div>
+          <div>
+        </div>
+    </form>
+</div>
 </body>
 </html>

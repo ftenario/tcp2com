@@ -94,7 +94,7 @@ func main() {
   //create the http endpoints
   mux.Get("/", http.HandlerFunc(Home))
   mux.Get("/ws", http.HandlerFunc(WebSocket))
-
+  mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
   //create a middleware
   n:=negroni.Classic()
   n.UseHandler(mux)
