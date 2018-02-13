@@ -3,7 +3,7 @@
 <head>
 <title>Http To Serial Port</title>
 <link rel="stylesheet" type="text/css" href="static/bootstrap.min.css">
-<script type="text/javascript" src="static/bootstrap.min.js"></script>
+<!-- <script type="text/javascript" src="static/bootstrap.min.js"></script> -->
 
 <script type="text/javascript">
   var conn;
@@ -127,47 +127,18 @@ body {
     width: 70%;
 }
 
-#msg {
-  /* height: 2em;
-  font-size: 14px; */
-  position: absolute;
-  left: -100px;
-}
-
 #log pre {
   margin: 0;
 }
 #form {
-    padding: 0 1em 0 1em;
-    margin: 1;
+    padding: 0.5em 0.5em 0.5em 0.5em;
     position: absolute;
     bottom: 1em;
-    left: -50px;
-    width: 120%;
+    left: 0px;
+    width: 100%;
     overflow: hidden;
 }
-/*
-#send {
-   background-color: #008CBA;
-   border: none;
-   color: white;
-   padding: 10px 32px;
-   text-align: center;
-   text-decoration: none;
-   display: inline-block;
-   font-size: 12px;
-}
-#clear {
-   background-color: #008CBA;
-   border: none;
-   color: white;
-   padding: 10px 32px;
-   text-align: center;
-   text-decoration: none;
-   display: inline-block;
-   font-size: 12px;
-}
-*/
+
 #status {
   position: absolute;
   top: 50px;
@@ -214,19 +185,17 @@ body {
 <div id="log"></div>
 <div id="status">State</div>
     <form id="form" autocomplete="off">
-      <div class="container" width="100%">
           <div class="row">
-              <div class="col-8">
-                  <input type="text" class="form-control" width="60px" id="msg"/>
+              <div class="col-6">
+                  <input type="text" class="form-control" width="100%" id="msg"/>
               </div>
-              <div class="col-2">
+              <div class="col-3">
                 <button type="submit" id="send"  class="btn btn-primary">Send</button>
+                <button type="button" id="clear" class="btn btn-primary">Clear Log</button>
               </div>
-              <div class="col-2">
-                  <button type="button" id="clear" class="btn btn-primary">Clear Log</button>
+              <div class="col-3">
               </div>
           <div>
-        </div>
     </form>
 </div>
 </body>

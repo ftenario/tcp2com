@@ -86,7 +86,7 @@ var upgrader = websocket.Upgrader{
 func main() {
 
   //connect to serial automaticaly. This needs to be change
-  //to allo user to select serial port to connect to
+  //to allow user to select serial port to connect to
   connectSerial()
   txChan <- "\n"
 
