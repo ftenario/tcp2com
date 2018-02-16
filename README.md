@@ -13,6 +13,7 @@ This is still a work-in-progress
 * Add TCP port for automation
 * Use css Tab for multiple port logs
 * Add devices info in the UI
+* Add connect to devices in the UI
 
 ## Building for different platforms:
 
