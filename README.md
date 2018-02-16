@@ -9,9 +9,10 @@ This is still a work-in-progress
 ## TO DO LIST
 * use parameter.ini for serial config - done
 * Add multiple ports in parameters.ini
-* Add bootstrap css for the UI
+* Add bootstrap css for the UI - done
 * Add TCP port for automation
 * Use css Tab for multiple port logs
+* Add devices info in the UI
 
 ## Building for different platforms:
 
