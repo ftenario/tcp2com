@@ -116,15 +116,17 @@ body {
 }
 #log {
     background: white;
-    margin: 0;
-    padding: 0.5em 0.5em 0.5em 0.5em;
-    position: absolute;
-    top: 3em;
+    /* margin: 0;
+    padding: 0.5em 0.5em 0.5em 0.5em; */
+    position: relative;
+    top: 20px;
     left: 0.5em;
     right: 0.5em;
-    bottom: 4em;
+    bottom: 0.5em;
     overflow: auto;
-    width: 70%;
+    border: 1px;
+    border-style: solid;
+    height: 600px;
 }
 
 #log pre {
@@ -132,25 +134,34 @@ body {
 }
 #form {
     padding: 0.5em 0.5em 0.5em 0.5em;
-    position: absolute;
-    bottom: 1em;
-    left: 0px;
+    position: relative;
+    margin-top: 2em;
+    left: 5px;
     width: 100%;
-    overflow: hidden;
+    height: 4em;
+}
+
+.container {
+    max-width: 95%;
 }
 
 #status {
-  position: absolute;
-  top: 50px;
-  right: 20px;
-  overflow: hidden;
-  font-size: 24px;
-  width: 230px;
-}
-#header {
-  position: absolute;
-  top: 10px;
+  position: relative;
+  top: 20px;
   left: 20px;
+  font-size: 24px;
+}
+#devices {
+  position: relative;
+  top: 40px;
+  left: 20px;
+  font-size: 24px;
+}
+
+#header {
+  position: relative;
+  top: 10px;
+  left: 20px; */
   overflow: hidden;
   font-size: 28px;
   width: 100%;
@@ -181,22 +192,37 @@ body {
 </style>
 </head>
 <body>
-<div id="header">Web to Serial Device</div>
-<div id="log"></div>
-<div id="status">State</div>
-    <form id="form" autocomplete="off">
-          <div class="row">
-              <div class="col-6">
-                  <input type="text" class="form-control" width="100%" id="msg"/>
+<div class="container">
+    <div class="row">
+        <div id="header">Web to Serial Device</div>
+    </div>
+    <div class="row">
+        <div class="col-md-8" id="log"></div>
+        <div class="col-md-4">
+            <div>
+                <div id="status">State</div>
+            </div>
+            <div>
+                <div id="devices">Devices</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <form id="form" autocomplete="off">
+              <div class="row">
+                  <div class="col-6">
+                      <input type="text" class="form-control" width="100%" id="msg"/>
+                  </div>
+                  <div class="col-3">
+                      <button type="submit" id="send"  class="btn btn-primary">Send</button>
+                      <button type="button" id="clear" class="btn btn-primary">Clear Log</button>
+                  </div>
               </div>
-              <div class="col-3">
-                <button type="submit" id="send"  class="btn btn-primary">Send</button>
-                <button type="button" id="clear" class="btn btn-primary">Clear Log</button>
-              </div>
-              <div class="col-3">
-              </div>
-          <div>
-    </form>
+        </form>
+    </div>
+
 </div>
+
 </body>
 </html>
